@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorial: Cómo creamos este juego con IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .step {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #e94560;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        h2 {
+            display: inline;
+            font-size: 1.5rem;
+            vertical-align: middle;
+        }
+
+        .step-content {
+            margin-top: 1.5rem;
+            padding-left: 3.5rem;
+        }
+
+        .code-block {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .code-block code {
+            color: #7ee787;
+        }
+
+        .highlight {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            color: #ff6b6b;
+        }
+
+        .tool-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.2rem;
+            color: #a8b9ff;
+        }
+
+        .warning {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: rgba(46, 213, 115, 0.2);
+            border-left: 4px solid #2ed573;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+        }
+
+        ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .architecture {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .arch-box {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .arch-box h4 {
+            color: #e94560;
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-top: 2px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .architecture {
+                grid-template-columns: 1fr;
+            }
+            .step-content {
+                padding-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tutorial: Creando un Juego con IA</h1>
+            <p class="subtitle">Cómo construimos "Adivina el Refrán" paso a paso usando Claude Code</p>
+        </header>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <h2>Preparar el contenido en Excel</h2>
+            <div class="step-content">
+                <p>Primero creamos un archivo Excel (<span class="highlight">idiomas.xlsx</span>) con 50 frases hechas y refranes populares en tres idiomas.</p>
+
+                <p><strong>Prompt utilizado:</strong></p>
+                <div class="code-block">
+                    <code>Busca las 50 frases hechas que más se dicen en español y tradúcelas al inglés y francés. Ponlas en un Excel con columnas: ESPAÑOL, INGLES, FRANCES.</code>
+                </div>
+
+                <p><strong>Herramientas usadas:</strong></p>
+                <span class="tool-badge">Python</span>
+                <span class="tool-badge">openpyxl</span>
+
+                <div class="success">
+                    <strong>Resultado:</strong> 50 frases como "A quien madruga, Dios le ayuda" con sus equivalentes en inglés ("The early bird catches the worm") y francés.
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <h2>Crear la página de inicio</h2>
+            <div class="step-content">
+                <p>Diseñamos una página de bienvenida atractiva con animaciones CSS.</p>
+
+                <p><strong>Elementos incluidos:</strong></p>
+                <ul>
+                    <li>Fondo degradado oscuro con partículas flotantes</li>
+                    <li>Título con efecto de brillo (glow)</li>
+                    <li>Banderas animadas de UK, Francia y España</li>
+                    <li>Instrucción para comenzar (clic o tecla)</li>
+                </ul>
+
+                <p><strong>Técnicas CSS utilizadas:</strong></p>
+                <div class="code-block">
+                    <code>@keyframes glow {
+    from { text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+    to { text-shadow: 0 0 40px rgba(255,255,255,0.8); }
+}</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <h2>Desarrollar la lógica del juego</h2>
+            <div class="step-content">
+                <p>El juego muestra frases en inglés o francés y el usuario debe escribir el equivalente en español.</p>
+
+                <p><strong>Funcionalidades implementadas:</strong></p>
+                <ul>
+                    <li>Selección aleatoria de frases e idioma</li>
+                    <li>Marcador de aciertos, racha y progreso</li>
+                    <li>Mensajes de felicitación o ánimo</li>
+                    <li>Puntuación final al completar las 50 frases</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Reto técnico:</strong> ¿Cómo aceptar respuestas que no sean exactamente iguales pero sean correctas?
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <h2>Implementar el algoritmo de similitud</h2>
+            <div class="step-content">
+                <p>Usamos el algoritmo de <strong>Levenshtein</strong> para calcular la similitud entre la respuesta del usuario y la correcta.</p>
+
+                <div class="code-block">
+                    <code>function similarity(str1, str2) {
+    const maxLen = Math.max(str1.length, str2.length);
+    const distance = levenshteinDistance(str1, str2);
+    return (maxLen - distance) / maxLen;
+}
+
+// Aceptamos si la similitud es >= 80%
+if (similarity(userAnswer, correctAnswer) >= 0.8) {
+    // ¡Correcto!
+}</code>
+                </div>
+
+                <p>Esto permite que pequeños errores ortográficos no penalicen al jugador.</p>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <h2>Añadir traducción con IA (Anthropic API)</h2>
+            <div class="step-content">
+                <p>Integramos la API de Claude para traducir las frases a otros idiomas en tiempo real.</p>
+
+                <div class="architecture">
+                    <div class="arch-box">
+                        <h4>Frontend</h4>
+                        <p>HTML + JavaScript</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>Backend</h4>
+                        <p>Python Server</p>
+                    </div>
+                    <div class="arch-box">
+                        <h4>IA</h4>
+                        <p>Claude API</p>
+                    </div>
+                </div>
+
+                <p><strong>Servidor Python (server.py):</strong></p>
+                <div class="code-block">
+                    <code>client = anthropic.Anthropic(api_key=API_KEY)
+message = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=200,
+    messages=[{
+        "role": "user",
+        "content": f"Traduce esta frase al {idioma}: {frase}"
+    }]
+)</code>
+                </div>
+
+                <div class="warning">
+                    <strong>Importante:</strong> La API key nunca debe subirse a repositorios públicos. Por eso creamos un archivo <span class="highlight">.gitignore</span> que excluye server.py.
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">6</span>
+            <h2>Publicar en GitHub Pages</h2>
+            <div class="step-content">
+                <p>Subimos el proyecto a GitHub y lo publicamos con GitHub Pages para que cualquiera pueda jugar.</p>
+
+                <p><strong>Pasos realizados:</strong></p>
+                <ol>
+                    <li>Crear repositorio en GitHub</li>
+                    <li>Inicializar git local: <code>git init</code></li>
+                    <li>Añadir archivos: <code>git add index.html juego.html idiomas.xlsx</code></li>
+                    <li>Commit: <code>git commit -m "Juego Adivina el Refrán"</code></li>
+                    <li>Conectar con remoto: <code>git remote add origin [URL]</code></li>
+                    <li>Subir: <code>git push -u origin main</code></li>
+                    <li>Activar GitHub Pages en Settings > Pages</li>
+                </ol>
+
+                <div class="success">
+                    <strong>Resultado:</strong> Juego disponible en una URL pública accesible desde cualquier navegador.
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">7</span>
+            <h2>Resumen de archivos creados</h2>
+            <div class="step-content">
+                <table style="width:100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <td style="padding: 0.5rem;"><strong>index.html</strong></td>
+                        <td style="padding: 0.5rem;">Página de inicio con animaciones</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <td style="padding: 0.5rem;"><strong>juego.html</strong></td>
+                        <td style="padding: 0.5rem;">Lógica del juego y traducción</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <td style="padding: 0.5rem;"><strong>idiomas.xlsx</strong></td>
+                        <td style="padding: 0.5rem;">50 frases en 3 idiomas</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <td style="padding: 0.5rem;"><strong>server.py</strong></td>
+                        <td style="padding: 0.5rem;">Servidor para traducción con IA (solo local)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <td style="padding: 0.5rem;"><strong>iniciar.bat</strong></td>
+                        <td style="padding: 0.5rem;">Script para arrancar el servidor</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.5rem;"><strong>.gitignore</strong></td>
+                        <td style="padding: 0.5rem;">Excluye archivos sensibles de git</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-primary">Jugar ahora</a>
+            <a href="https://github.com/InternationalCIO/MITPEJUEGO" class="btn btn-secondary">Ver en GitHub</a>
+        </div>
+
+        <footer>
+            <p>Tutorial creado durante el curso de MIT Professional Education</p>
+            <p>"Inteligencia Artificial Agéntica Aplicada a la Transformación Empresarial"</p>
+            <p style="margin-top: 1rem;">Creado con Claude Code (Anthropic)</p>
+        </footer>
+    </div>
+</body>
+</html>
