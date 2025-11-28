@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adivina el Refrán - Juego</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            color: #fff;
+        }
+
+        .score-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 10px;
+        }
+
+        .language-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .language-badge.english {
+            background: linear-gradient(135deg, #00247d, #cf142b);
+        }
+
+        .language-badge.french {
+            background: linear-gradient(135deg, #002395, #ed2939);
+        }
+
+        .phrase {
+            font-size: 2rem;
+            color: #fff;
+            margin: 2rem 0;
+            line-height: 1.4;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-section {
+            margin: 2rem 0;
+        }
+
+        .input-section input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            text-align: center;
+        }
+
+        .input-section input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+        }
+
+        .btn {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .feedback {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            font-size: 1.3rem;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: rgba(46, 213, 115, 0.3);
+            color: #2ed573;
+            display: block;
+            animation: celebrate 0.5s ease;
+        }
+
+        .feedback.incorrect {
+            background: rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+            display: block;
+            animation: shake 0.5s ease;
+        }
+
+        .correct-answer {
+            margin-top: 1rem;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .home-link {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .home-link:hover {
+            color: #fff;
+        }
+
+        .hint {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 1rem;
+        }
+
+        .translate-section {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .translate-section.visible {
+            display: block;
+        }
+
+        .translate-section select {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .btn-translate {
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .translation-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .translation-result.visible {
+            display: block;
+        }
+
+        .loading {
+            color: #667eea;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-link">← Volver al inicio</a>
+
+    <div class="game-container">
+        <div class="score-board">
+            <div class="score-item">Aciertos: <span id="correct">0</span></div>
+            <div class="score-item">Pregunta: <span id="current">1</span>/50</div>
+            <div class="score-item">Racha: <span id="streak">0</span></div>
+        </div>
+
+        <div id="language-badge" class="language-badge english">English</div>
+
+        <div id="phrase" class="phrase">Cargando...</div>
+
+        <div class="input-section">
+            <input type="text" id="answer" placeholder="Escribe el refrán en español..." autocomplete="off">
+        </div>
+
+        <button class="btn btn-primary" onclick="checkAnswer()">Comprobar</button>
+        <button class="btn btn-secondary" onclick="skipPhrase()">Pasar</button>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div id="translate-section" class="translate-section">
+            <select id="language-select">
+                <option value="">-- Selecciona idioma --</option>
+                <option value="alemán">Alemán</option>
+                <option value="italiano">Italiano</option>
+                <option value="portugués">Portugués</option>
+                <option value="latín">Latín</option>
+                <option value="griego">Griego</option>
+                <option value="japonés">Japonés</option>
+                <option value="chino mandarín">Chino</option>
+                <option value="ruso">Ruso</option>
+                <option value="árabe">Árabe</option>
+                <option value="hindi">Hindi</option>
+                <option value="coreano">Coreano</option>
+                <option value="neerlandés">Neerlandés</option>
+                <option value="sueco">Sueco</option>
+                <option value="polaco">Polaco</option>
+                <option value="turco">Turco</option>
+            </select>
+            <button class="btn btn-translate" onclick="translatePhrase()">Traducir</button>
+            <div id="translation-result" class="translation-result"></div>
+            <p style="font-size:0.8rem; color:rgba(255,255,255,0.4); margin-top:0.5rem;">Traducción con IA solo disponible en modo local (iniciar.bat)</p>
+        </div>
+
+        <button id="next-btn" class="btn btn-primary" style="display:none; margin-top:1rem;" onclick="nextPhrase()">Siguiente frase</button>
+
+        <p class="hint">Pulsa Enter para comprobar tu respuesta</p>
+    </div>
+
+    <script>
+        const frases = [
+            {espanol: "A quien madruga, Dios le ayuda", ingles: "The early bird catches the worm", frances: "L'avenir appartient à ceux qui se lèvent tôt"},
+            {espanol: "Más vale tarde que nunca", ingles: "Better late than never", frances: "Mieux vaut tard que jamais"},
+            {espanol: "No hay mal que por bien no venga", ingles: "Every cloud has a silver lining", frances: "À quelque chose malheur est bon"},
+            {espanol: "En boca cerrada no entran moscas", ingles: "Silence is golden", frances: "Dans une bouche fermée, il n'entre pas de mouches"},
+            {espanol: "Quien mucho abarca, poco aprieta", ingles: "Jack of all trades, master of none", frances: "Qui trop embrasse mal étreint"},
+            {espanol: "Más vale pájaro en mano que ciento volando", ingles: "A bird in the hand is worth two in the bush", frances: "Un tiens vaut mieux que deux tu l'auras"},
+            {espanol: "A caballo regalado no le mires el diente", ingles: "Don't look a gift horse in the mouth", frances: "À cheval donné on ne regarde pas les dents"},
+            {espanol: "Cuando el río suena, agua lleva", ingles: "Where there's smoke, there's fire", frances: "Il n'y a pas de fumée sans feu"},
+            {espanol: "El que siembra vientos, recoge tempestades", ingles: "You reap what you sow", frances: "Qui sème le vent récolte la tempête"},
+            {espanol: "Ojos que no ven, corazón que no siente", ingles: "Out of sight, out of mind", frances: "Loin des yeux, loin du cœur"},
+            {espanol: "Estar en las nubes", ingles: "To have one's head in the clouds", frances: "Être dans les nuages"},
+            {espanol: "Tirar la toalla", ingles: "To throw in the towel", frances: "Jeter l'éponge"},
+            {espanol: "Meter la pata", ingles: "To put one's foot in it", frances: "Mettre les pieds dans le plat"},
+            {espanol: "Ser pan comido", ingles: "To be a piece of cake", frances: "Être du gâteau"},
+            {espanol: "Estar como pez en el agua", ingles: "To be in one's element", frances: "Être comme un poisson dans l'eau"},
+            {espanol: "Costar un ojo de la cara", ingles: "To cost an arm and a leg", frances: "Coûter les yeux de la tête"},
+            {espanol: "Dormir como un tronco", ingles: "To sleep like a log", frances: "Dormir comme une souche"},
+            {espanol: "Llover a cántaros", ingles: "To rain cats and dogs", frances: "Pleuvoir des cordes"},
+            {espanol: "Buscar una aguja en un pajar", ingles: "To look for a needle in a haystack", frances: "Chercher une aiguille dans une botte de foin"},
+            {espanol: "Tener la sartén por el mango", ingles: "To have the upper hand", frances: "Tenir le couteau par le manche"},
+            {espanol: "No tener pelos en la lengua", ingles: "To not mince words", frances: "Ne pas avoir la langue dans sa poche"},
+            {espanol: "Echar leña al fuego", ingles: "To add fuel to the fire", frances: "Jeter de l'huile sur le feu"},
+            {espanol: "Ser uña y carne", ingles: "To be thick as thieves", frances: "Être comme les deux doigts de la main"},
+            {espanol: "A buen entendedor, pocas palabras bastan", ingles: "A word to the wise is enough", frances: "À bon entendeur, salut"},
+            {espanol: "Del dicho al hecho hay mucho trecho", ingles: "Easier said than done", frances: "Il y a loin de la coupe aux lèvres"},
+            {espanol: "No hay rosa sin espinas", ingles: "Every rose has its thorn", frances: "Il n'y a pas de rose sans épines"},
+            {espanol: "Perro que ladra no muerde", ingles: "His bark is worse than his bite", frances: "Chien qui aboie ne mord pas"},
+            {espanol: "El tiempo es oro", ingles: "Time is money", frances: "Le temps, c'est de l'argent"},
+            {espanol: "La práctica hace al maestro", ingles: "Practice makes perfect", frances: "C'est en forgeant qu'on devient forgeron"},
+            {espanol: "Más sabe el diablo por viejo que por diablo", ingles: "Experience is the best teacher", frances: "Ce n'est pas à un vieux singe qu'on apprend à faire des grimaces"},
+            {espanol: "Dime con quién andas y te diré quién eres", ingles: "You are known by the company you keep", frances: "Dis-moi qui tu fréquentes, je te dirai qui tu es"},
+            {espanol: "A falta de pan, buenas son tortas", ingles: "Half a loaf is better than none", frances: "Faute de grives, on mange des merles"},
+            {espanol: "Hacer de tripas corazón", ingles: "To pluck up courage", frances: "Prendre son courage à deux mains"},
+            {espanol: "Tener mariposas en el estómago", ingles: "To have butterflies in one's stomach", frances: "Avoir des papillons dans le ventre"},
+            {espanol: "Estar entre la espada y la pared", ingles: "To be between a rock and a hard place", frances: "Être entre le marteau et l'enclume"},
+            {espanol: "Ponerse las pilas", ingles: "To get one's act together", frances: "Se mettre au boulot"},
+            {espanol: "Tomar el pelo", ingles: "To pull someone's leg", frances: "Faire marcher quelqu'un"},
+            {espanol: "Dar en el clavo", ingles: "To hit the nail on the head", frances: "Mettre le doigt dessus"},
+            {espanol: "Empezar la casa por el tejado", ingles: "To put the cart before the horse", frances: "Mettre la charrue avant les bœufs"},
+            {espanol: "No tener ni pies ni cabeza", ingles: "To make no sense at all", frances: "N'avoir ni queue ni tête"},
+            {espanol: "Cada maestrillo tiene su librillo", ingles: "Each to their own", frances: "Chacun voit midi à sa porte"},
+            {espanol: "Matar dos pájaros de un tiro", ingles: "To kill two birds with one stone", frances: "Faire d'une pierre deux coups"},
+            {espanol: "Ser el ojo derecho de alguien", ingles: "To be the apple of someone's eye", frances: "Être la prunelle des yeux de quelqu'un"},
+            {espanol: "Ahogarse en un vaso de agua", ingles: "To make a mountain out of a molehill", frances: "Se noyer dans un verre d'eau"},
+            {espanol: "Ir al grano", ingles: "To get to the point", frances: "Aller droit au but"},
+            {espanol: "Tener algo en la punta de la lengua", ingles: "To have something on the tip of one's tongue", frances: "Avoir quelque chose sur le bout de la langue"},
+            {espanol: "Roma no se construyó en un día", ingles: "Rome wasn't built in a day", frances: "Rome ne s'est pas faite en un jour"},
+            {espanol: "Más vale solo que mal acompañado", ingles: "Better alone than in bad company", frances: "Mieux vaut être seul que mal accompagné"},
+            {espanol: "El hábito no hace al monje", ingles: "Don't judge a book by its cover", frances: "L'habit ne fait pas le moine"},
+            {espanol: "Quien ríe último, ríe mejor", ingles: "He who laughs last, laughs best", frances: "Rira bien qui rira le dernier"}
+        ];
+
+        const congratulations = [
+            "¡Excelente! ¡Lo has clavado!",
+            "¡Perfecto! ¡Eres un crack!",
+            "¡Genial! ¡Conoces muy bien los refranes!",
+            "¡Bravo! ¡Respuesta correcta!",
+            "¡Fantástico! ¡Sigue así!",
+            "¡Increíble! ¡Vas muy bien!",
+            "¡Maravilloso! ¡Eres un experto!",
+            "¡Sensacional! ¡Qué buena memoria!"
+        ];
+
+        const encouragements = [
+            "¡Casi! No te rindas, la próxima será.",
+            "¡Ánimo! Cada intento te hace más sabio.",
+            "¡Sigue intentándolo! La práctica hace al maestro.",
+            "¡No pasa nada! Aprender es parte del juego.",
+            "¡Vamos! El siguiente seguro que lo aciertas.",
+            "¡Tranquilo! Los refranes son difíciles.",
+            "¡A por la siguiente! Vas mejorando."
+        ];
+
+        let currentIndex = 0;
+        let correctCount = 0;
+        let streak = 0;
+        let usedIndices = [];
+        let currentLanguage = '';
+        let currentPhrase = null;
+
+        // Levenshtein distance for similarity calculation
+        function levenshteinDistance(str1, str2) {
+            const m = str1.length;
+            const n = str2.length;
+            const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+
+            for (let i = 0; i <= m; i++) dp[i][0] = i;
+            for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+            for (let i = 1; i <= m; i++) {
+                for (let j = 1; j <= n; j++) {
+                    if (str1[i - 1] === str2[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    } else {
+                        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+                    }
+                }
+            }
+            return dp[m][n];
+        }
+
+        function similarity(str1, str2) {
+            const s1 = str1.toLowerCase().trim();
+            const s2 = str2.toLowerCase().trim();
+            const maxLen = Math.max(s1.length, s2.length);
+            if (maxLen === 0) return 1;
+            const distance = levenshteinDistance(s1, s2);
+            return (maxLen - distance) / maxLen;
+        }
+
+        function getRandomPhrase() {
+            if (usedIndices.length >= frases.length) {
+                usedIndices = [];
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * frases.length);
+            } while (usedIndices.includes(randomIndex));
+
+            usedIndices.push(randomIndex);
+            currentPhrase = frases[randomIndex];
+
+            // Random language
+            currentLanguage = Math.random() < 0.5 ? 'ingles' : 'frances';
+
+            return currentPhrase;
+        }
+
+        function displayPhrase() {
+            const phrase = getRandomPhrase();
+            const badge = document.getElementById('language-badge');
+            const phraseEl = document.getElementById('phrase');
+
+            if (currentLanguage === 'ingles') {
+                badge.textContent = 'English';
+                badge.className = 'language-badge english';
+                phraseEl.textContent = phrase.ingles;
+            } else {
+                badge.textContent = 'Français';
+                badge.className = 'language-badge french';
+                phraseEl.textContent = phrase.frances;
+            }
+
+            document.getElementById('answer').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').innerHTML = '';
+            hideTranslateSection();
+            document.getElementById('answer').focus();
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answer').value;
+            const correctAnswer = currentPhrase.espanol;
+            const sim = similarity(userAnswer, correctAnswer);
+
+            const feedback = document.getElementById('feedback');
+
+            if (sim >= 0.8) {
+                correctCount++;
+                streak++;
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = congratulations[Math.floor(Math.random() * congratulations.length)] + `<div class="correct-answer">"${correctAnswer}"</div>`;
+            } else {
+                streak = 0;
+                feedback.className = 'feedback incorrect';
+                const encouragement = encouragements[Math.floor(Math.random() * encouragements.length)];
+                feedback.innerHTML = `${encouragement}<div class="correct-answer">La respuesta era: "${correctAnswer}"</div>`;
+            }
+            showTranslateSection();
+
+            document.getElementById('correct').textContent = correctCount;
+            document.getElementById('streak').textContent = streak;
+
+            currentIndex++;
+            document.getElementById('current').textContent = Math.min(currentIndex + 1, 50);
+
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function skipPhrase() {
+            streak = 0;
+            document.getElementById('streak').textContent = streak;
+
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback incorrect';
+            feedback.innerHTML = `La respuesta era: "${currentPhrase.espanol}"`;
+            showTranslateSection();
+
+            currentIndex++;
+            document.getElementById('current').textContent = Math.min(currentIndex + 1, 50);
+
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function nextPhrase() {
+            document.getElementById('next-btn').style.display = 'none';
+            if (currentIndex < 50) {
+                displayPhrase();
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function showFinalScore() {
+            const container = document.querySelector('.game-container');
+            const percentage = Math.round((correctCount / 50) * 100);
+            let message = '';
+
+            if (percentage >= 90) message = '¡Increíble! ¡Eres un maestro de los refranes!';
+            else if (percentage >= 70) message = '¡Muy bien! ¡Conoces bastantes refranes!';
+            else if (percentage >= 50) message = '¡Buen trabajo! ¡Sigue practicando!';
+            else message = '¡No te desanimes! La práctica hace al maestro.';
+
+            container.innerHTML = `
+                <h1 style="color: #fff; font-size: 3rem; margin-bottom: 2rem;">¡Juego terminado!</h1>
+                <p style="color: #e94560; font-size: 2rem; margin-bottom: 1rem;">Puntuación: ${correctCount}/50 (${percentage}%)</p>
+                <p style="color: rgba(255,255,255,0.8); font-size: 1.5rem; margin-bottom: 2rem;">${message}</p>
+                <button class="btn btn-primary" onclick="location.reload()">Jugar de nuevo</button>
+                <button class="btn btn-secondary" onclick="location.href='index.html'">Volver al inicio</button>
+            `;
+        }
+
+        // Enter key to submit
+        document.getElementById('answer').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Translate function
+        async function translatePhrase() {
+            const idioma = document.getElementById('language-select').value;
+            if (!idioma) {
+                alert('Selecciona un idioma primero');
+                return;
+            }
+
+            const resultDiv = document.getElementById('translation-result');
+            resultDiv.className = 'translation-result visible';
+            resultDiv.innerHTML = '<span class="loading">Traduciendo con IA...</span>';
+
+            try {
+                const response = await fetch('http://localhost:8000/traducir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        frase: currentPhrase.espanol,
+                        idioma: idioma
+                    })
+                });
+
+                const data = await response.json();
+                if (data.traduccion) {
+                    resultDiv.innerHTML = `<strong>${idioma}:</strong> ${data.traduccion}`;
+                } else {
+                    resultDiv.innerHTML = 'Error al traducir';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = 'Error: Asegúrate de iniciar el servidor con iniciar.bat';
+            }
+        }
+
+        function showTranslateSection() {
+            document.getElementById('translate-section').className = 'translate-section visible';
+            document.getElementById('translation-result').className = 'translation-result';
+            document.getElementById('language-select').value = '';
+        }
+
+        function hideTranslateSection() {
+            document.getElementById('translate-section').className = 'translate-section';
+        }
+
+        // Start game
+        displayPhrase();
+    </script>
+</body>
+</html>

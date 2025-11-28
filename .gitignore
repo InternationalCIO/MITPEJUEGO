@@ -1,0 +1,5 @@
+server.py
+iniciar.bat
+prompt-*.txt
+*.pyc
+__pycache__/
